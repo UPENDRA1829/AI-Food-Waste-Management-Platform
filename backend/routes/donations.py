@@ -1,4 +1,4 @@
-
+        
 from datetime import date
 
 from fastapi import APIRouter, HTTPException
@@ -7,7 +7,7 @@ from database import get_connection
 router = APIRouter()
 
 
-# API 1: Create a donation request
+# API 1: Create a donation request and reserve food quantity
 @router.post("/donations")
 def create_donation(
     inventory_id: int,
@@ -26,7 +26,10 @@ def create_donation(
     try:
         cursor = connection.cursor()
 
-        # Check that the inventory item exists
+        # Lock the SQLite database for this transaction
+        connection.execute("BEGIN IMMEDIATE")
+
+        # Check inventory item
         cursor.execute(
             "SELECT * FROM inventory WHERE inventory_id = ?",
             (inventory_id,)
@@ -39,7 +42,7 @@ def create_donation(
                 detail="Inventory item not found"
             )
 
-        # Check that the NGO exists
+        # Check NGO
         cursor.execute(
             "SELECT * FROM ngos WHERE ngo_id = ?",
             (ngo_id,)
@@ -52,9 +55,17 @@ def create_donation(
                 detail="NGO not found"
             )
 
-        # Do not create a request for expired food
+        # Reject expired food
         if item["expiry_date"]:
-            expiry_date = date.fromisoformat(item["expiry_date"])
+            try:
+                expiry_date = date.fromisoformat(
+                    item["expiry_date"]
+                )
+            except ValueError:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid inventory expiry date"
+                )
 
             if expiry_date < date.today():
                 raise HTTPException(
@@ -62,35 +73,72 @@ def create_donation(
                     detail="Expired food cannot be donated"
                 )
 
-        if quantity > item["quantity"]:
+        available_quantity = float(item["quantity"])
+
+        if quantity > available_quantity:
             raise HTTPException(
                 status_code=400,
-                detail="Donation quantity exceeds available inventory"
+                detail=(
+                    "Insufficient stock. Available quantity: "
+                    f"{available_quantity}"
+                )
             )
 
-        cursor.execute("""
+        # Reserve stock by reducing inventory quantity
+        cursor.execute(
+            """
+            UPDATE inventory
+            SET quantity = quantity - ?
+            WHERE inventory_id = ?
+              AND quantity >= ?
+            """,
+            (quantity, inventory_id, quantity)
+        )
+
+        if cursor.rowcount != 1:
+            raise HTTPException(
+                status_code=400,
+                detail="Unable to reserve the requested quantity"
+            )
+
+        # Create donation request
+        cursor.execute(
+            """
             INSERT INTO donations (
-                inventory_id, ngo_id, quantity,
-                status, pickup_notes
+                inventory_id,
+                ngo_id,
+                quantity,
+                status,
+                pickup_notes
             )
             VALUES (?, ?, ?, 'Pending', ?)
-        """, (
-            inventory_id,
-            ngo_id,
-            quantity,
-            pickup_notes
-        ))
+            """,
+            (
+                inventory_id,
+                ngo_id,
+                quantity,
+                pickup_notes
+            )
+        )
+
+        donation_id = cursor.lastrowid
+        remaining_quantity = available_quantity - quantity
 
         connection.commit()
 
         return {
-            "message": "Donation request created successfully",
-            "donation_id": cursor.lastrowid,
+            "message": "Donation request created and stock reserved",
+            "donation_id": donation_id,
             "inventory_id": inventory_id,
             "ngo_id": ngo_id,
-            "quantity": quantity,
+            "reserved_quantity": quantity,
+            "remaining_quantity": remaining_quantity,
             "status": "Pending"
         }
+
+    except Exception:
+        connection.rollback()
+        raise
 
     finally:
         connection.close()
@@ -104,7 +152,8 @@ def get_donations():
     try:
         cursor = connection.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 d.donation_id,
                 d.inventory_id,
@@ -122,7 +171,8 @@ def get_donations():
             JOIN ngos n
                 ON d.ngo_id = n.ngo_id
             ORDER BY d.donation_id DESC
-        """)
+            """
+        )
 
         donations = [
             dict(row) for row in cursor.fetchall()
@@ -161,8 +211,15 @@ def update_donation_status(
     try:
         cursor = connection.cursor()
 
+        # Start a transaction for a safe status update
+        connection.execute("BEGIN IMMEDIATE")
+
         cursor.execute(
-            "SELECT donation_id, status FROM donations WHERE donation_id = ?",
+            """
+            SELECT donation_id, inventory_id, quantity, status
+            FROM donations
+            WHERE donation_id = ?
+            """,
             (donation_id,)
         )
 
@@ -176,7 +233,6 @@ def update_donation_status(
 
         current_status = donation["status"]
 
-        # Enforce sensible status transitions
         allowed_transitions = {
             "Pending": ["Accepted", "Rejected"],
             "Accepted": ["Collected", "Rejected"],
@@ -184,14 +240,48 @@ def update_donation_status(
             "Rejected": []
         }
 
-        if status != current_status and status not in allowed_transitions[current_status]:
+        # Allow repeating the current status without changing stock
+        if status != current_status and status not in allowed_transitions.get(
+            current_status, []
+        ):
             raise HTTPException(
                 status_code=400,
-                detail=f"Cannot change status from {current_status} to {status}"
+                detail=(
+                    f"Cannot change status from {current_status} "
+                    f"to {status}"
+                )
+            )
+
+        if status == current_status:
+            connection.commit()
+
+            return {
+                "message": "Donation already has this status",
+                "donation_id": donation_id,
+                "previous_status": current_status,
+                "current_status": current_status
+            }
+
+        # Restore reserved quantity if donation is rejected
+        if status == "Rejected":
+            cursor.execute(
+                """
+                UPDATE inventory
+                SET quantity = quantity + ?
+                WHERE inventory_id = ?
+                """,
+                (
+                    donation["quantity"],
+                    donation["inventory_id"]
+                )
             )
 
         cursor.execute(
-            "UPDATE donations SET status = ? WHERE donation_id = ?",
+            """
+            UPDATE donations
+            SET status = ?
+            WHERE donation_id = ?
+            """,
             (status, donation_id)
         )
 
@@ -201,8 +291,13 @@ def update_donation_status(
             "message": "Donation status updated successfully",
             "donation_id": donation_id,
             "previous_status": current_status,
-            "current_status": status
+            "current_status": status,
+            "stock_restored": status == "Rejected"
         }
+
+    except Exception:
+        connection.rollback()
+        raise
 
     finally:
         connection.close()
