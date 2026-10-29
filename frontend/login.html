@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodRescue | Login</title>
+  <link rel="stylesheet" href="css/site.css">
+  <style>
+    .login-layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #fff;
+    }
+
+    .login-brand-panel {
+      background: linear-gradient(155deg, #103f30, #176b4d 65%, #2a8b5c);
+      color: white;
+      padding: 48px 8%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-brand-panel::after {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      border: 90px solid rgba(255,255,255,.045);
+      right: -180px;
+      bottom: -190px;
+      pointer-events: none;
+    }
+
+    .login-brand-panel .brand { color: white; }
+
+    .login-story {
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-story h1 {
+      font-family: Manrope, sans-serif;
+      font-size: clamp(38px, 4vw, 60px);
+      line-height: 1.17;
+      letter-spacing: -2px;
+      margin-bottom: 22px;
+    }
+
+    .login-story h1 em {
+      font-style: normal;
+      color: #d7ef98;
+    }
+
+    .login-story p {
+      font-size: 17px;
+      line-height: 1.9;
+      max-width: 460px;
+      color: #d5e7dc;
+    }
+
+    .login-quote {
+      border-top: 1px solid #ffffff35;
+      padding-top: 22px;
+      color: #d5e7dc;
+      font-size: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-form-panel {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 50px 28px;
+    }
+
+    .login-box { width: min(440px, 100%); }
+
+    .back-link {
+      display: inline-block;
+      color: #6c7c71;
+      font-size: 14px;
+      margin-bottom: 35px;
+    }
+
+    .back-link:hover { color: #176b4d; }
+
+    .login-kicker {
+      color: #176b4d;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+
+    .login-box h2 {
+      font-family: Manrope, sans-serif;
+      font-size: 34px;
+      letter-spacing: -1px;
+      margin: 12px 0;
+    }
+
+    .login-subtitle {
+      color: #77857c;
+      line-height: 1.7;
+      margin-bottom: 30px;
+    }
+
+    .role-switcher {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 8px;
+      margin-bottom: 30px;
+    }
+
+    .role-btn {
+      background: #f5f8f4;
+      border: 1px solid #e2ebe2;
+      border-radius: 12px;
+      padding: 13px 7px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      color: #596a5e;
+      font-size: 12px;
+    }
+
+    .role-btn.active {
+      background: #e8f5ed;
+      color: #176b4d;
+      border-color: #83bea0;
+    }
+
+    .field { margin-bottom: 20px; }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 9px;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid #dce5dd;
+      border-radius: 11px;
+      padding: 16px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: #176b4d;
+      box-shadow: 0 0 0 3px #176b4d18;
+    }
+
+    .login-submit {
+      width: 100%;
+      border: none;
+      padding: 17px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      font-family: inherit;
+      background: #176b4d;
+      color: white;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .login-submit:hover { background: #103f30; }
+
+    .login-message {
+      margin-top: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #7a5140;
+      background: #fff7e9;
+      padding: 14px;
+      border-radius: 10px;
+    }
+
+    .login-footer {
+      color: #849189;
+      text-align: center;
+      margin-top: 30px;
+      font-size: 12px;
+    }
+
+    @media(max-width:850px) {
+      .login-layout { grid-template-columns: 1fr; }
+      .login-brand-panel { min-height: 300px; gap: 40px; padding: 30px; }
+      .login-story h1 { font-size: 35px; }
+      .login-quote { display: none; }
+      .login-form-panel { padding: 40px 20px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="login-layout">
+
+    <section class="login-brand-panel">
+      <a href="landing.html" class="brand">✳ FoodRescue<span class="brand-dot">.</span></a>
+
+      <div class="login-story">
+        <span class="section-kicker" style="color:#d7ef98">WELCOME TO FOODRESCUE</span>
+        <h1>Every login is<br>a step toward<br><em>less food waste.</em></h1>
+        <p>Connect technology, food businesses, and communities to make food rescue more intelligent and accessible.</p>
+      </div>
+
+      <div class="login-quote">🌱 Rescue food. Nourish lives. Create impact.</div>
+    </section>
+
+    <section class="login-form-panel">
+      <div class="login-box">
+        <a href="landing.html" class="back-link">← Back to homepage</a>
+
+        <span class="login-kicker">YOUR FOODRESCUE ACCOUNT</span>
+        <h2 id="loginTitle">Welcome back.</h2>
+        <p class="login-subtitle" id="loginSubtitle">Select your role to continue.</p>
+
+        <div class="role-switcher">
+          <button type="button" class="role-btn" data-role="restaurant">🏪 Restaurant</button>
+          <button type="button" class="role-btn" data-role="ngo">💚 NGO</button>
+          <button type="button" class="role-btn" data-role="admin">🛡️ Admin</button>
+        </div>
+
+        <form id="loginForm">
+          <div id="restaurantFields">
+            <div class="field">
+              <label for="businessKey">Business API Key</label>
+              <input id="businessKey" type="password" autocomplete="off" placeholder="Enter your existing business API key">
+            </div>
+          </div>
+
+          <div id="otherFields" hidden>
+            <div class="field">
+              <label for="email">Email Address</label>
+              <input id="email" type="email" autocomplete="username" placeholder="Enter your email">
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" type="password" autocomplete="current-password" placeholder="Enter your password">
+            </div>
+          </div>
+
+          <button class="login-submit" type="submit" id="submitButton">Continue to Dashboard →</button>
+        </form>
+
+        <div class="login-message" id="loginMessage" role="status" aria-live="polite"></div>
+
+        <div class="login-footer">
+          FoodRescue © 2026 · Secure access is enabled for existing Business API keys.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/site.js"></script>
+</body>
+</html>
