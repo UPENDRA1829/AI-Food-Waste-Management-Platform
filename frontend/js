@@ -1,1 +1,96 @@
 
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const allowedRoles = ["restaurant", "ngo", "admin"];
+
+  let currentRole = allowedRoles.includes(params.get("role"))
+    ? params.get("role")
+    : "restaurant";
+
+  const roleButtons = document.querySelectorAll(".role-btn");
+  const title = document.getElementById("loginTitle");
+  const subtitle = document.getElementById("loginSubtitle");
+  const restaurantFields = document.getElementById("restaurantFields");
+  const otherFields = document.getElementById("otherFields");
+  const message = document.getElementById("loginMessage");
+  const submitButton = document.getElementById("submitButton");
+  const form = document.getElementById("loginForm");
+
+  function setRole(role) {
+    currentRole = role;
+
+    roleButtons.forEach(button => {
+      button.classList.toggle("active", button.dataset.role === role);
+    });
+
+    restaurantFields.hidden = role !== "restaurant";
+    otherFields.hidden = role === "restaurant";
+
+    if (role === "restaurant") {
+      title.textContent = "Restaurant Login";
+      subtitle.textContent = "Access your inventory and AI waste intelligence dashboard.";
+      submitButton.textContent = "Connect Restaurant →";
+      message.textContent = "Use your existing FoodRescue Business API key.";
+    } else if (role === "ngo") {
+      title.textContent = "NGO Login";
+      subtitle.textContent = "Join the mission to rescue surplus food.";
+      submitButton.textContent = "NGO Login (Coming Soon)";
+      message.textContent = "NGO account authentication is being developed. This is a preview screen.";
+    } else {
+      title.textContent = "Admin Login";
+      subtitle.textContent = "Manage and monitor FoodRescue platform operations.";
+      submitButton.textContent = "Admin Login (Coming Soon)";
+      message.textContent = "Admin account authentication is being developed. This is a preview screen.";
+    }
+
+    submitButton.disabled = role !== "restaurant";
+    submitButton.style.opacity = role === "restaurant" ? "1" : ".55";
+    submitButton.style.cursor = role === "restaurant" ? "pointer" : "not-allowed";
+  }
+
+  roleButtons.forEach(button => {
+    button.addEventListener("click", () => setRole(button.dataset.role));
+  });
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    if (currentRole !== "restaurant") return;
+
+    const key = document.getElementById("businessKey").value.trim();
+
+    if (!key) {
+      message.textContent = "Please enter your Business API key.";
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Verifying key...";
+    message.textContent = "Connecting to FoodRescue backend...";
+
+    try {
+      const response = await fetch("http://127.0.0.1:8002/inventory/", {
+        headers: { "X-API-Key": key }
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          response.status === 401
+            ? "Invalid or inactive Business API key."
+            : `Backend returned HTTP ${response.status}.`
+        );
+      }
+
+      sessionStorage.setItem("foodrescue_api_key", key);
+      window.location.href = "index.html";
+
+    } catch (error) {
+      message.textContent = "Login failed: " + error.message;
+      submitButton.disabled = false;
+      submitButton.textContent = "Connect Restaurant →";
+    }
+  });
+
+  setRole(currentRole);
+})();
+
