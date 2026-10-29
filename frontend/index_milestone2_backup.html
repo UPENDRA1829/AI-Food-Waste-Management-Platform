@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodRescue | Inventory Dashboard</title>
+<style>
+:root{--primary:#1e3a8a;--primary-h:#1d4ed8;--accent:#2563eb;--bg:#f4f7fb;--text:#172033;--muted:#64748b;--border:#e2e8f0;--green:#176b4d}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+header{background:var(--green);color:#fff;padding:22px 7%}
+header h1{margin:0 0 6px;font-size:clamp(1.8rem,3vw,2.4rem)}header p{margin:0;opacity:.9}
+main{max-width:1100px;margin:30px auto;padding:0 20px}
+h2{font-size:1.25rem;margin:0 0 14px}h3{font-size:1rem}
+.notice{background:#e4f4eb;border-left:4px solid var(--green);padding:14px;border-radius:6px;margin-bottom:24px}
+.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px;box-shadow:0 4px 16px rgba(15,23,42,.06);min-width:0}
+.card>h2:first-child{padding-bottom:12px;border-bottom:1px solid var(--border)}
+label{display:block;margin:12px 0 6px;color:#334155;font-weight:600;font-size:.92rem}
+input,select{width:100%;max-width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:var(--text);font:inherit}
+input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.13)}
+input[type=file]{background:#f8fafc;padding:10px}
+button{margin-top:16px;padding:10px 16px;border:0;border-radius:9px;background:var(--primary);color:#fff;font:inherit;font-weight:650;cursor:pointer;transition:background .2s}
+button:hover{background:var(--primary-h)}button:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+button:disabled{opacity:.55;cursor:not-allowed}
+.secondary{background:#e4f4eb;color:var(--green)}.secondary:hover{background:#d0eadb}
+.muted{color:var(--muted);font-size:14px}.hint{font-size:13px;color:var(--muted);line-height:1.6}
+.result{margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:10px;background:#f8fafc;overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.5}
+.table-wrapper,.table-container{overflow-x:auto}
+table{width:100%;border-collapse:separate;border-spacing:0;margin-top:15px;background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;white-space:nowrap}
+th{background:#eff4ff;color:var(--primary);font-size:.85rem}
+tbody tr:last-child td{border-bottom:none}tbody tr:hover{background:#f8faff}
+footer{text-align:center;padding:25px;color:var(--muted)}
+.key-actions{display:flex;gap:8px;flex-wrap:wrap}.key-actions button{margin-top:10px}
+.status-badge{display:inline-block;padding:5px 9px;border-radius:12px;font-size:12px;font-weight:bold}
+.status-expired{color:#b91c1c;background:#fee2e2}.status-soon{color:#c2410c;background:#ffedd5}
+.status-fresh{color:#166534;background:#dcfce7}.status-unknown{color:#475569;background:#e2e8f0}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 18px}
+.notification-item{border:1px solid var(--border);border-left:5px solid #94a3b8;border-radius:8px;padding:15px;margin:12px 0;background:#fff;overflow-wrap:anywhere}
+.priority-critical{border-left-color:#dc2626}.priority-high{border-left-color:#ea580c}.priority-medium{border-left-color:#ca8a04}
+.is-unread{background:#f8fcf9}.is-read{opacity:.78}.notification-item p{margin:7px 0}
+.notification-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.generated-codes{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.code-card{min-width:0;padding:16px;border:1px solid var(--border);border-radius:12px;background:#fff;text-align:center}
+.code-card h3{color:var(--green);margin-top:0}
+.code-card img{display:block;max-width:100%;height:auto;max-height:260px;object-fit:contain;margin:12px auto}
+.code-value{padding:10px;background:#f4f7f4;border-radius:6px;overflow-wrap:anywhere;font-family:monospace;font-size:14px;color:var(--muted)}
+.code-download{display:inline-block;margin-top:8px;color:var(--accent);font-weight:600}
+.code-error{color:#b91c1c}
+.expiry-summary{white-space:pre-wrap;font-family:inherit;margin:0}
+.expiry-item{padding:14px 16px;margin:12px 0;border-radius:10px;border-left:5px solid}
+.expiry-item h4{margin:0 0 8px}.expiry-item p{margin:4px 0}
+.expiry-expired{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.expiry-soon{background:#fffbeb;border-color:#d97706;color:#92400e}
+.expiry-fresh{background:#f0fdf4;border-color:#16a34a;color:#166534}
+#pos-integration-section{border-top:4px solid var(--primary)}
+#pos-integration-section .hint{margin-top:16px;padding:12px;border-radius:8px;background:#eff6ff;color:#1e40af}
+.proto{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#92400e;font-size:12px;vertical-align:middle}
+[hidden]{display:none!important}
+@media(max-width:768px){.card{padding:16px}th,td{padding:10px}.generated-codes{grid-template-columns:1fr}}
+@media(max-width:600px){#pos-integration-section .key-actions{flex-direction:column}#pos-integration-section .key-actions button{width:100%}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header><h1>🥬 FoodRescue</h1><p>Smart Food Inventory &amp; Surplus Redistribution</p></header>
+<main>
+<div class="notice"><strong>Welcome to FoodRescue!</strong><p>Manage food inventory, monitor expiry dates, and prepare surplus food for redistribution.</p></div>
+
+<section class="card">
+<h2>🔐 Business API Authentication</h2><p class="muted">Your API key is stored for this browser tab's session. Clear it when you finish.</p>
+<label for="apiKey">Business API Key</label><input id="apiKey" type="password" autocomplete="off" placeholder="Enter your saved API key">
+<div class="key-actions"><button type="button" class="secondary" id="toggleKeyButton" onclick="toggleApiKeyVisibility()">Show key</button><button type="button" onclick="connectApi()">Connect</button><button type="button" class="secondary" onclick="clearApiKey()">Clear key</button></div>
+<div id="authMessage" class="result" aria-live="polite">Not connected. Enter your API key and select Connect.</div>
+</section>
+
+<section class="card">
+<h2>➕ Add Food Inventory</h2><p class="muted">Use a category that already exists in your database. Barcode and QR values are generated by your backend.</p>
+<form id="inventoryForm"><div class="form-grid">
+<div><label for="productName">Product Name</label><input id="productName" required maxlength="150" placeholder="Example: Milk"></div>
+<div><label for="category">Food Category</label><input id="category" required maxlength="100" placeholder="Example: Dairy or Fruits"></div>
+<div><label for="foodType">Food Type</label><select id="foodType" required><option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option></select></div>
+<div><label for="quantity">Quantity</label><input id="quantity" type="number" min="0.01" step="any" required placeholder="Example: 10"></div>
+<div><label for="unit">Unit</label><input id="unit" required maxlength="30" placeholder="kg, litres, pieces"></div>
+<div><label for="storageType">Storage Requirement</label><select id="storageType" required><option value="">Select storage</option><option>Refrigerator</option><option>Freezer</option><option>Room Temperature</option></select></div>
+<div><label for="purchaseDate">Purchase Date</label><input id="purchaseDate" type="date" required></div>
+<div><label for="newExpiryDate">Expiry Date</label><input id="newExpiryDate" type="date" required></div>
+</div><button type="submit" id="addInventoryButton">Add Inventory</button> <button type="reset" class="secondary">Clear Form</button>
+<div id="addInventoryMessage" class="result" aria-live="polite">Complete the fields above to add food inventory.</div></form>
+</section>
+
+<section class="card" id="generatedCodesSection" hidden>
+<h2>🏷️ Generated Barcode &amp; QR Code</h2><p class="muted">These internal codes identify the inventory item saved in your FoodRescue database.</p>
+<p id="generatedCodesItem" aria-live="polite"></p><p id="generatedCodesMessage" class="muted" aria-live="polite"></p>
+<div class="generated-codes">
+<div class="code-card"><h3>📊 Barcode</h3><img id="barcodeImage" alt="Generated inventory barcode" hidden><p id="barcodeValue" class="code-value">Not generated yet</p><a id="barcodeDownload" class="code-download" hidden>Download Barcode PNG</a></div>
+<div class="code-card"><h3>📱 QR Code</h3><img id="qrImage" alt="Generated inventory QR code" hidden><p id="qrValue" class="code-value">Not generated yet</p><a id="qrDownload" class="code-download" hidden>Download QR PNG</a></div>
+</div></section>
+
+<section class="card" id="csv-upload-section"><h2>📄 Bulk Food Inventory Upload</h2><p>Upload a CSV file to add multiple food items at once.</p>
+<p class="hint">Required columns: <strong>product_name, category, quantity, unit, purchase_date, expiry_date, storage_type, food_type</strong></p><p class="hint">Optional columns: barcode, qr_code, business_id. Dates must use YYYY-MM-DD format.</p>
+<form id="csv-upload-form"><label for="csv-file">Choose CSV File</label><input type="file" id="csv-file" name="file" accept=".csv,text/csv" required><button type="submit" id="csv-upload-button">Upload CSV</button> <button type="button" class="secondary" id="csv-clear-button">Clear File</button></form>
+<div id="csv-upload-message" class="result" role="status" aria-live="polite">Connect your API key before uploading.</div></section>
+
+<section class="dashboard">
+<div class="card"><h2>📦 Inventory</h2><p>Load the authenticated business's inventory.</p><button type="button" onclick="loadInventory()">Load Inventory</button><div id="inventoryMessage" class="result">Connect your API key first.</div></div>
+<div class="card"><h2>🔎 Barcode / QR Lookup</h2><p>Find an item using its inventory ID or its generated code.</p>
+<label for="inventoryId">Inventory ID</label><input id="inventoryId" type="number" min="1" placeholder="Example: 32"><button type="button" onclick="findInventoryItem()">Find by ID</button>
+<label for="scanCode">Barcode / QR Value</label><input id="scanCode" placeholder="Example: FOOD00000032"><button type="button" onclick="findByScanCode()">Find by Code</button>
+<div id="scanResult" class="result">Item details will appear here.</div>
+<div class="generated-codes" id="lookupCodesSection">
+<div class="code-card"><h3>📊 Product Barcode</h3><img id="lookupBarcodeImage" alt="Product barcode" hidden></div>
+<div class="code-card"><h3>📱 Product QR Code</h3><img id="lookupQrImage" alt="Product QR code" hidden></div></div>
+<p class="muted">This searches by saved code value; it does not use the device camera.</p></div>
+<div class="card"><h2>⏰ Expiry Check</h2><p>Check expiry information from the backend.</p><button type="button" id="expiryButton" onclick="checkExpiry()">Check Expiry</button><div id="expiryResult" class="result">Expiry results will appear here.</div></div>
+</section>
+
+<section class="card"><h2>📋 Inventory Records</h2><p class="muted">Red: expired · Orange: expires today or within 2 days · Green: fresh · Grey: unknown date.</p><div class="table-wrapper"><table><thead><tr><th>ID</th><th>Product</th><th>Category</th><th>Food Type</th><th>Quantity</th><th>Unit</th><th>Expiry Date</th><th>Expiry Status</th><th>Barcode</th><th>QR Code</th></tr></thead><tbody id="inventoryTable"><tr><td colspan="10">No data loaded yet.</td></tr></tbody></table></div></section>
+<!-- ========================================== -->
+<!-- AI WASTE RISK PREDICTION SECTION            -->
+<!-- ========================================== -->
+
+<section class="card" id="ai-risk-section">
+
+    <h2>🤖 AI-Based Food Waste Risk Prediction</h2>
+
+    <p class="muted">
+        Analyse existing food inventory using expiry dates,
+        available stock and historical sales information.
+    </p>
+
+    <p class="hint">
+        Predictions are preliminary until sufficient
+        historical sales data is available.
+    </p>
+
+    <button
+        type="button"
+        id="aiRiskButton"
+        onclick="loadAiRisk()">
+        Analyse Waste Risk
+    </button>
+
+    <div
+        id="aiRiskSummary"
+        class="result"
+        aria-live="polite">
+        Select Analyse Waste Risk to load predictions.
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Inventory ID</th>
+                    <th>Product</th>
+                    <th>Risk Score</th>
+                    <th>Risk Level</th>
+                    <th>Recommended Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="aiRiskTable">
+                <tr>
+                    <td colspan="5">
+                        No waste-risk analysis loaded yet.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</section>
+
+<!-- AI DEMAND FORECASTING & SMART REORDER DEMO -->
+<section class="card" id="ai-forecast-section">
+
+    <h2>AI Demand Forecasting & Smart Reorder</h2>
+
+    <p class="muted">
+        Predict daily and weekly product demand using
+        trained Baseline, Prophet and LSTM models.
+    </p>
+
+    <p class="hint">
+        DEMONSTRATION ONLY: Forecasts and reorder
+        recommendations use synthetic sales data,
+        not actual FoodRescue business history.
+    </p>
+
+    <div class="form-grid">
+        <div>
+            <label for="forecastCategory">Food Category</label>
+            <select id="forecastCategory">
+                <option value="bakery">Bakery</option>
+                <option value="dairy">Dairy</option>
+                <option value="frozen">Frozen</option>
+                <option value="meat">Meat</option>
+                <option value="packaged">Packaged</option>
+                <option value="produce">Produce</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="forecastHorizon">Forecast Period</label>
+            <select id="forecastHorizon">
+                <option value="7">7 Days</option>
+                <option value="14">14 Days</option>
+                <option value="30">30 Days</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="key-actions">
+        <button type="button" onclick="loadDemoForecast()">
+            Generate AI Forecast
+        </button>
+
+        <button type="button" class="secondary"
+                onclick="loadDemoReorder()">
+            Generate Smart Reorder
+        </button>
+    </div>
+
+    <div id="demoForecastSummary"
+         class="result" aria-live="polite">
+        Select Generate AI Forecast to view predictions.
+    </div>
+
+    <h3>Daily Demand Forecast</h3>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Predicted Demand</th>
+                    <th>Lower Estimate</th>
+                    <th>Upper Estimate</th>
+                    <th>AI Model</th>
+                </tr>
+            </thead>
+            <tbody id="demoForecastTable">
+                <tr>
+                    <td colspan="5">No forecast loaded.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Smart Reorder Recommendations</h3>
+
+    <div id="demoReorderSummary"
+         class="result" aria-live="polite">
+        Select Generate Smart Reorder to view recommendations.
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Recommended Qty</th>
+                    <th>Order By</th>
+                    <th>Estimated Cost</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody id="demoReorderTable">
+                <tr>
+                    <td colspan="5">No recommendations loaded.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+<section class="card" id="notifications-section"><h2>🔔 Expiry Notifications</h2><p class="muted">View saved expiry alerts. Select Mark as Read when you have reviewed a notification.</p>
+<div class="key-actions"><button type="button" id="loadNotificationsButton" onclick="loadNotifications()">Refresh Notifications</button><button type="button" class="secondary" onclick="loadExpiryAlerts()">Check Current Alerts</button></div>
+<div id="notificationsSummary" class="result" aria-live="polite">Connect your API key to load notifications.</div><div id="notificationsList" aria-live="polite"><p class="muted">Notifications will appear here.</p></div>
+<h3>Current Expiry Alerts</h3><div id="currentAlerts" class="result" aria-live="polite">Select Check Current Alerts to load the latest alerts.</div></section>
+
+<section class="card" id="pos-integration-section">
+<h2>🔌 POS System Integration <span class="proto">Prototype</span></h2>
+<p class="muted">Configure a Point of Sale (POS) system to exchange sales and inventory data with FoodRescue through REST APIs.</p>
+<div class="form-grid">
+<div><label for="posProvider">POS Provider</label><select id="posProvider"><option value="">Select provider</option><option value="custom">Custom REST API</option><option value="other">Other POS system</option></select></div>
+<div><label for="posApiUrl">POS REST API Base URL</label><input id="posApiUrl" type="url" placeholder="https://your-pos.example.com/api"></div>
+<div><label for="posApiKey">POS API Credential</label><input id="posApiKey" type="password" autocomplete="off" placeholder="Not used by this prototype"></div>
+<div><label for="posSyncMode">Synchronisation Direction</label><select id="posSyncMode"><option value="pos_to_foodrescue">POS → FoodRescue</option><option value="foodrescue_to_pos">FoodRescue → POS</option><option value="two_way">Two-way synchronisation</option></select></div>
+</div>
+<div class="key-actions"><button type="button" id="posSaveButton">Validate Configuration</button><button type="button" class="secondary" id="posTestButton">Test Connection</button><button type="button" class="secondary" id="posSyncButton">Sync Inventory</button></div>
+<div id="posStatus" class="result" role="status" aria-live="polite">Prototype only. Nothing is saved or sent to a POS system.</div>
+<p class="hint">Security note: this interface is a prototype and does not connect to any external POS system. Connection testing and synchronisation require a secure backend integration. The credential field is never stored or transmitted; do not enter a real production credential.</p>
+</section>
+
+<section class="card" id="activity-section"><h2>📊 Transactions and Donations</h2><p class="muted">Review inventory stock movements and donation status.</p>
+<div class="key-actions"><button type="button" id="loadTransactionsButton" onclick="loadTransactions()">Refresh Transactions</button><button type="button" id="loadDonationsButton" onclick="loadDonations()">Refresh Donations</button></div>
+<h3>Inventory Transaction History</h3><div id="transactionsSummary" class="result" aria-live="polite">Click Refresh Transactions to load stock history.</div><div class="table-container"><table><thead><tr><th>Transaction ID</th><th>Inventory ID</th><th>Type</th><th>Quantity Change</th><th>Previous</th><th>New</th><th>Notes</th></tr></thead><tbody id="transactionsTableBody"><tr><td colspan="7">No transaction data loaded yet.</td></tr></tbody></table></div>
+<h3>Donation History</h3><div id="donationsSummary" class="result" aria-live="polite">Click Refresh Donations to load donation history.</div><div class="table-container"><table><thead><tr><th>Donation ID</th><th>Product</th><th>NGO</th><th>Quantity</th><th>Status</th><th>Created At</th><th>Pickup Notes</th></tr></thead><tbody id="donationsTableBody"><tr><td colspan="7">No donation data loaded yet.</td></tr></tbody></table></div></section>
+</main><footer>FoodRescue · Food Waste Management Platform</footer>
+
+<script>
+const API_BASE = "http://127.0.0.1:8002";
+const AI_API_BASE = "http://127.0.0.1:8001";
+const KEY_NAME = "foodrescue_api_key";
+const $ = id => document.getElementById(id);
+let apiKey = "";
+try { apiKey = sessionStorage.getItem(KEY_NAME) || ""; } catch {}
+const objectUrls = {};
+
+/* ---------- API key state (the key is never displayed or logged) ---------- */
+function saveApiKey(key) {
+  apiKey = key;
+  try { key ? sessionStorage.setItem(KEY_NAME, key) : sessionStorage.removeItem(KEY_NAME); } catch {}
+}
+function setAuthMessage(m) { $("authMessage").textContent = m; }
+function authFail() {
+  saveApiKey("");
+  $("apiKey").value = "";
+  setAuthMessage("Authentication failed. Please enter your API key and reconnect.");
+}
+function getAuthHeaders() {
+  if (!apiKey) throw new Error("Enter your business API key and select Connect first.");
+  return { "X-API-Key": apiKey };
+}
+function toggleApiKeyVisibility() {
+  const i = $("apiKey");
+  i.type = i.type === "password" ? "text" : "password";
+  $("toggleKeyButton").textContent = i.type === "password" ? "Show key" : "Hide key";
+}
+function clearApiKey() {
+  saveApiKey("");
+  $("apiKey").value = "";
+  setAuthMessage("API key cleared. You are not connected.");
+  $("inventoryMessage").textContent = "Connect your API key before loading inventory.";
+  $("csv-upload-message").textContent = "Connect your API key before uploading.";
+}
+
+/* ---------- Shared request helper ---------- */
+// Clears the key ONLY on HTTP 401/403. Other errors (404, 500, network) leave it alone.
+async function api(path, options = {}, asResponse = false) {
+  const headers = { ...getAuthHeaders(), ...(options.headers || {}) };
+  let r;
+  try { r = await fetch(API_BASE + path, { ...options, headers }); }
+  catch { throw new Error(`Cannot reach the backend at ${API_BASE}. Check it is running and that CORS allows this page.`); }
+  if (r.status === 401 || r.status === 403) {
+    authFail();
+    throw new Error("Authentication failed. Please reconnect your API key.");
+  }
+  if (asResponse) {
+    if (!r.ok) throw new Error(r.status === 404 ? `Endpoint not found: ${path}` : `HTTP ${r.status}`);
+    return r;
+  }
+  const text = await r.text();
+  let data;
+  try { data = text ? JSON.parse(text) : {}; }
+  catch {
+    if (r.ok) throw new Error("The backend returned invalid JSON.");
+    data = { detail: text };
+  }
+  if (!r.ok) {
+    if (r.status === 404 && !data.detail) throw new Error(`Endpoint not found (HTTP 404): ${path}. Confirm this route exists in your backend.`);
+    const d = data.detail ?? data.message ?? `HTTP ${r.status}`;
+    throw new Error(typeof d === "string" ? d : JSON.stringify(d));
+  }
+  return data;
+}
+
+async function connectApi() {
+  const entered = $("apiKey").value.trim();
+  if (!entered) { saveApiKey(""); setAuthMessage("Enter your business API key first."); return; }
+  saveApiKey(entered);
+  setAuthMessage("Checking API key...");
+  try {
+    const items = await fetchInventory();
+    setAuthMessage(`Connected successfully. Inventory endpoint returned ${items.length} records.`);
+    $("inventoryMessage").textContent = "Connected. Select Load Inventory to display records.";
+    $("csv-upload-message").textContent = "Connected. Choose a CSV file to upload.";
+  } catch (e) {
+    if (apiKey) setAuthMessage(`Could not verify the key: ${e.message}`); // auth errors already set their own message
+  }
+}
+if (apiKey) setAuthMessage("A key from this tab's session is loaded. Select Connect to verify it.");
+
+/* ---------- Inventory ---------- */
+function getExpiryStatus(d) {
+  const u = { label: "Unknown", className: "status-unknown" };
+  if (!d || typeof d !== "string") return u;
+  const m = d.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return u;
+  const y = +m[1], mo = +m[2], da = +m[3], exp = Date.UTC(y, mo - 1, da), p = new Date(exp);
+  if (p.getUTCFullYear() !== y || p.getUTCMonth() !== mo - 1 || p.getUTCDate() !== da) return u;
+  const n = new Date(), left = Math.round((exp - Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())) / 864e5);
+  if (left < 0) return { label: "Expired", className: "status-expired" };
+  if (left <= 2) return { label: left === 0 ? "Expires Today" : "Expiring Soon", className: "status-soon" };
+  return { label: "Fresh", className: "status-fresh" };
+}
+function renderInventory(items) {
+  const t = $("inventoryTable");
+  t.replaceChildren();
+  if (!items.length) { const c = t.insertRow().insertCell(); c.colSpan = 10; c.textContent = "No inventory records found."; return; }
+  for (const it of items) {
+    const row = t.insertRow(), exp = it.expiry_date ?? "";
+    [it.inventory_id, it.product_name, it.category ?? it.category_name, it.food_type, it.quantity, it.unit, exp || "Not provided"]
+      .forEach(v => { row.insertCell().textContent = String(v ?? ""); });
+    const s = getExpiryStatus(exp), b = document.createElement("span");
+    b.className = `status-badge ${s.className}`; b.textContent = s.label;
+    row.insertCell().appendChild(b);
+    [it.barcode, it.qr_code].forEach(v => { row.insertCell().textContent = String(v || "Not available"); });
+  }
+}
+async function fetchInventory() {
+  const data = await api("/inventory");
+  const items = Array.isArray(data) ? data : (data.inventory || data.items || []);
+  if (!Array.isArray(items)) throw new Error("Unexpected inventory response format.");
+  return items;
+}
+
+/* ---------- AI Waste Risk Analysis ---------- */
+async function loadAiRisk() {
+  const button = $("aiRiskButton");
+  const summary = $("aiRiskSummary");
+  const table = $("aiRiskTable");
+
+  button.disabled = true;
+  button.textContent = "Analysing...";
+  summary.textContent = "Calculating waste-risk scores...";
+  table.replaceChildren();
+
+  try {
+    const data = await api("/ai/waste-risk");
+    const results = Array.isArray(data.results) ? data.results : [];
+
+    const critical = results.filter(
+      item => item.risk_level === "CRITICAL"
+    ).length;
+
+    const high = results.filter(
+      item => item.risk_level === "HIGH"
+    ).length;
+
+    summary.textContent =
+      `Analysed ${results.length} items. ` +
+      `Critical: ${critical} | High: ${high}. ` +
+      "Predictions are preliminary until sufficient sales history is available.";
+
+    if (results.length === 0) {
+      const row = table.insertRow();
+      const cell = row.insertCell();
+      cell.colSpan = 5;
+      cell.textContent = "No inventory items available for analysis.";
+      return;
+    }
+
+    for (const item of results) {
+      const row = table.insertRow();
+
+      const inventoryId = String(item.product_id || "")
+        .replace(/^inventory-/, "");
+
+      const action = String(item.action || "REVIEW")
+        .replaceAll("_", " ");
+
+      const values = [
+        inventoryId,
+        item.name || "Unknown",
+        item.risk_score ?? "N/A",
+        item.risk_level || "UNKNOWN",
+        action
+      ];
+
+      for (const value of values) {
+        const cell = row.insertCell();
+        cell.textContent = String(value);
+      }
+
+      if (item.risk_level === "CRITICAL") {
+        row.style.backgroundColor = "#fff0f0";
+      } else if (item.risk_level === "HIGH") {
+        row.style.backgroundColor = "#fff8e6";
+      }
+    }
+
+  } catch (error) {
+    summary.textContent =
+      "AI analysis failed: " + (error.message || "Unknown error");
+
+    const row = table.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 5;
+    cell.textContent = "Unable to load waste-risk predictions.";
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "Analyse Waste Risk";
+  }
+}
+
+async function loadInventory() {
+  const m = $("inventoryMessage");
+  m.textContent = "Loading inventory...";
+  try {
+    const items = await fetchInventory();
+    m.textContent = `Loaded ${items.length} inventory records.`;
+    renderInventory(items);
+  } catch (e) {
+    m.textContent = e.message || "Could not load inventory.";
+    const c = $("inventoryTable"); c.replaceChildren();
+    const cell = c.insertRow().insertCell(); cell.colSpan = 10; cell.textContent = "Inventory could not be loaded.";
+  }
+}
+async function refreshInventoryTableOnly() {
+  try {
+    const items = await fetchInventory();
+    $("inventoryMessage").textContent = `Loaded ${items.length} inventory records.`;
+    renderInventory(items);
+  } catch (e) { $("inventoryMessage").textContent = `Inventory refresh failed: ${e.message}`; }
+}
+
+/* ---------- Barcode / QR images (object URLs are revoked when replaced) ---------- */
+async function loadCodeImage(slot, path, img, link, filename) {
+  if (objectUrls[slot]) { URL.revokeObjectURL(objectUrls[slot]); delete objectUrls[slot]; }
+  img.hidden = true; img.removeAttribute("src");
+  if (link) link.hidden = true;
+  const u = new URL(path, API_BASE);
+  if (u.origin !== new URL(API_BASE).origin) throw new Error("The image URL does not match the backend origin.");
+  const r = await api(u.pathname + u.search, {}, true);
+  const blob = await r.blob();
+  if (!blob.type.startsWith("image/")) throw new Error(`The ${filename} endpoint did not return an image.`);
+  const url = URL.createObjectURL(blob);
+  objectUrls[slot] = url;
+  img.src = url; img.hidden = false;
+  if (link) { link.href = url; link.download = filename; link.hidden = false; }
+}
+async function displayGeneratedCodes(data) {
+  const msg = $("generatedCodesMessage"), id = data.inventory_id;
+  $("generatedCodesSection").hidden = false;
+  msg.className = "muted"; msg.textContent = "Loading barcode and QR images...";
+  $("generatedCodesItem").textContent = `Inventory ID: ${id ?? "Unknown"}`;
+  $("barcodeValue").textContent = data.barcode || "Barcode value not returned";
+  $("qrValue").textContent = data.qr_code || "QR code value not returned";
+  try {
+    if (id == null) throw new Error("The backend did not return an inventory ID.");
+    // Uses URLs returned by the backend; falls back to the same routes the lookup feature uses.
+    await loadCodeImage("barcode", data.barcode_image_url || `/inventory/${encodeURIComponent(id)}/barcode.png`, $("barcodeImage"), $("barcodeDownload"), `foodrescue-barcode-${id}.png`);
+    await loadCodeImage("qr", data.qr_image_url || `/inventory/${encodeURIComponent(id)}/qr.png`, $("qrImage"), $("qrDownload"), `foodrescue-qr-${id}.png`);
+    msg.textContent = "Both code images loaded successfully.";
+  } catch (e) {
+    msg.className = "code-error";
+    msg.textContent = `${e.message} Check that the barcode and QR image endpoints exist in your backend.`;
+  }
+}
+
+/* ---------- Add inventory ---------- */
+$("inventoryForm").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const msg = $("addInventoryMessage"), btn = $("addInventoryButton");
+  try {
+    getAuthHeaders();
+    const f = {
+      product_name: $("productName").value.trim(), category: $("category").value.trim(),
+      food_type: $("foodType").value, quantity: $("quantity").value, unit: $("unit").value.trim(),
+      purchase_date: $("purchaseDate").value, expiry_date: $("newExpiryDate").value, storage_type: $("storageType").value
+    };
+    if (!f.product_name || !f.category || !f.unit || !f.storage_type || !f.purchase_date || !f.expiry_date) throw new Error("Please complete all required fields.");
+    if (!(Number(f.quantity) > 0)) throw new Error("Quantity must be greater than zero.");
+    if (f.expiry_date < f.purchase_date) throw new Error("Expiry date cannot be before purchase date.");
+    btn.disabled = true; msg.textContent = "Adding inventory...";
+    // Query-string format, as in the original code. Verify against POST /inventory in /docs.
+    const data = await api(`/inventory?${new URLSearchParams(f)}`, { method: "POST" });
+    msg.textContent = `Inventory added successfully!\nInventory ID: ${data.inventory_id}\nCategory: ${data.category}\nFood type: ${data.food_type}\nBarcode: ${data.barcode}\nQR code: ${data.qr_code}`;
+    $("inventoryForm").reset();
+    await displayGeneratedCodes(data);
+    await refreshInventoryTableOnly();
+  } catch (e) { msg.textContent = e.message || "Could not add inventory."; }
+  finally { btn.disabled = false; }
+});
+
+/* ---------- CSV upload ---------- */
+$("csv-upload-form").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const input = $("csv-file"), btn = $("csv-upload-button"), msg = $("csv-upload-message"), file = input.files && input.files[0];
+  if (!file) { msg.textContent = "Please choose a CSV file first."; return; }
+  if (!file.name.toLowerCase().endsWith(".csv")) { msg.textContent = "Please select a .csv file."; return; }
+  if (!file.size) { msg.textContent = "The selected CSV file is empty."; return; }
+  if (file.size > 5 * 1024 * 1024) { msg.textContent = "The CSV file is larger than 5 MB. Please choose a smaller file."; return; }
+  const fd = new FormData();
+  fd.append("file", file, file.name); // no manual Content-Type: the browser sets the multipart boundary
+  btn.disabled = true; msg.textContent = `Uploading ${file.name}...`;
+  try {
+    const data = await api("/inventory/upload-csv", { method: "POST", body: fd });
+    msg.textContent = "CSV upload completed successfully:\n" + JSON.stringify(data, null, 2);
+    input.value = "";
+    await refreshInventoryTableOnly();
+  } catch (e) { msg.textContent = `CSV upload failed: ${e.message}\nThe selected file has not been cleared.`; }
+  finally { btn.disabled = false; }
+});
+$("csv-clear-button").addEventListener("click", () => {
+  $("csv-file").value = "";
+  $("csv-upload-message").textContent = apiKey ? "File selection cleared. Choose a CSV file when ready." : "Connect your API key before uploading.";
+});
+
+/* ---------- Lookup ---------- */
+function showItemDetails(i, el) {
+  el.textContent = `Product: ${i.product_name ?? "Unknown"}\nInventory ID: ${i.inventory_id ?? "Unknown"}\nCategory: ${i.category ?? i.category_name ?? "Unknown"}\nFood type: ${i.food_type ?? "Not provided"}\nQuantity: ${i.quantity ?? "Unknown"} ${i.unit ?? ""}\nPurchase date: ${i.purchase_date ?? "Not provided"}\nExpiry: ${i.expiry_date ?? "Not provided"}\nStorage: ${i.storage_type ?? "Not provided"}\nBarcode: ${i.barcode ?? "Not available"}\nQR code: ${i.qr_code ?? "Not available"}`;
+}
+async function displayLookupCodes(item) {
+  const id = item.inventory_id;
+  const jobs = [["lookupBarcode", "barcode.png", $("lookupBarcodeImage")], ["lookupQr", "qr.png", $("lookupQrImage")]];
+  for (const [slot, file, img] of jobs) {
+    try {
+      if (!id) throw new Error("No inventory ID.");
+      await loadCodeImage(slot, `/inventory/${encodeURIComponent(id)}/${file}`, img, null, file);
+    } catch (e) { console.error(`Could not load lookup image (${file}):`, e.message); }
+  }
+}
+async function findInventoryItem() {
+  const id = $("inventoryId").value.trim(), out = $("scanResult");
+  if (!id || !Number.isInteger(Number(id)) || Number(id) < 1) { out.textContent = "Enter a valid inventory ID."; return; }
+  out.textContent = "Searching inventory...";
+  try {
+    const item = (await fetchInventory()).find(e => String(e.inventory_id) === String(Number(id)));
+    if (!item) { out.textContent = "No matching inventory item found."; return; }
+    showItemDetails(item, out);
+    await displayLookupCodes(item);
+  } catch (e) { out.textContent = e.message || "Could not search inventory."; }
+}
+async function findByScanCode() {
+  const code = $("scanCode").value.trim(), out = $("scanResult");
+  if (!code) { out.textContent = "Enter a barcode or QR value."; return; }
+  out.textContent = "Searching by code...";
+  try {
+    const data = await api(`/inventory/scan/${encodeURIComponent(code)}`);
+    const items = Array.isArray(data.items) ? data.items : [];
+    if (!items.length) { out.textContent = "No matching item found."; return; }
+    showItemDetails(items[0], out);
+    await displayLookupCodes(items[0]);
+  } catch (e) { out.textContent = e.message || "Could not search by code."; }
+}
+
+/* ---------- Expiry check (fields: items, status, priority, days_left, needs_attention, notification, ...) ---------- */
+async function checkExpiry() {
+  const out = $("expiryResult"), btn = $("expiryButton");
+  out.textContent = "Checking expiry...";
+  btn.disabled = true;
+  try {
+    const data = await api("/expiry-check");
+    const items = Array.isArray(data.items) ? data.items : [];
+    const attention = items.filter(i => i.needs_attention);
+    const count = f => items.filter(f).length;
+    const pre = document.createElement("pre");
+    pre.className = "expiry-summary";
+    pre.textContent = [
+      "EXPIRY CHECK SUMMARY", "--------------------",
+      `Business ID: ${data.business_id ?? "N/A"}`,
+      `Total items checked: ${data.total_items_checked ?? items.length}`,
+      `Expired items: ${count(i => i.status === "Expired")}`,
+      `Expiring soon: ${count(i => ["Expiring Soon", "Expires Today"].includes(i.status))}`,
+      `Fresh items: ${count(i => i.status === "Fresh")}`,
+      `New notifications saved: ${data.new_notifications_saved ?? 0}`,
+      `Invalid expiry dates skipped: ${data.skipped_items_invalid_expiry ?? 0}`
+    ].join("\n");
+    out.replaceChildren(pre);
+    const h = document.createElement("h3");
+    h.textContent = "Items Needing Attention";
+    out.appendChild(h);
+    if (!attention.length) {
+      const p = document.createElement("p");
+      p.textContent = items.length ? "No items currently need attention." : "The backend returned no inventory items.";
+      out.appendChild(p);
+    }
+    attention.forEach(i => {
+      const card = document.createElement("div");
+      card.className = "expiry-item " + (i.status === "Expired" ? "expiry-expired" : ["Expires Today", "Expiring Soon"].includes(i.status) ? "expiry-soon" : "expiry-fresh");
+      const d = Number(i.days_left);
+      const timing = i.days_left == null || !Number.isFinite(d) ? "Expiry timing unavailable"
+        : d < 0 ? `${Math.abs(d)} day(s) overdue` : d === 0 ? "Expires today" : `${d} day(s) remaining`;
+      const t = document.createElement("h4");
+      t.textContent = `${i.product_name ?? "Unknown product"} (ID ${i.inventory_id ?? "N/A"})`;
+      const lines = [`Status: ${i.status ?? "Unknown"} | Priority: ${i.priority ?? "N/A"}`, `Expiry: ${timing}`, `Action: ${i.notification ?? "Please check this item."}`]
+        .map(x => { const p = document.createElement("p"); p.textContent = x; return p; });
+      card.append(t, ...lines);
+      out.appendChild(card);
+    });
+  } catch (e) { out.textContent = `Expiry check failed: ${e.message}`; }
+  finally { btn.disabled = false; }
+}
+
+/* ---------- Notifications and alerts ---------- */
+function priorityClass(p) {
+  const v = String(p ?? "").toLowerCase();
+  return v === "critical" ? "priority-critical" : v === "high" ? "priority-high" : v === "medium" ? "priority-medium" : "";
+}
+async function loadNotifications() {
+  const sum = $("notificationsSummary"), list = $("notificationsList"), btn = $("loadNotificationsButton");
+  sum.textContent = "Loading saved notifications..."; btn.disabled = true;
+  try {
+    const data = await api("/expiry-notifications");
+    const ns = Array.isArray(data.notifications) ? data.notifications : [];
+    const unread = ns.filter(n => Number(n.is_read) === 0).length;
+    sum.textContent = `Business ID: ${data.business_id ?? "N/A"}\nNotifications returned: ${ns.length}\nUnread: ${unread}\nRead: ${ns.length - unread}`;
+    list.replaceChildren();
+    if (!ns.length) { list.textContent = "No notifications were returned."; return; }
+    ns.forEach(n => {
+      const read = Number(n.is_read) !== 0, card = document.createElement("div");
+      card.className = `notification-item ${priorityClass(n.priority)} ${read ? "is-read" : "is-unread"}`;
+      const head = document.createElement("div"); head.className = "notification-heading";
+      const name = document.createElement("strong"); name.textContent = `${n.product_name ?? "Unknown product"} (ID ${n.inventory_id ?? "N/A"})`;
+      const badge = document.createElement("span"); badge.className = `status-badge ${read ? "status-fresh" : "status-soon"}`; badge.textContent = read ? "Read" : "Unread";
+      head.append(name, badge); card.appendChild(head);
+      [`Expiry date: ${n.expiry_date ?? "Not provided"}`, `Status: ${n.status ?? "Unknown"}`, `Priority: ${n.priority ?? "Not specified"}`, `Days left: ${n.days_left ?? "Unknown"}`, `Message: ${n.message ?? "No message provided"}`, `Created: ${n.created_at ?? "Not provided"}`]
+        .forEach(x => { const p = document.createElement("p"); p.textContent = x; card.appendChild(p); });
+      if (!read && n.notification_id != null) {
+        const mark = document.createElement("button");
+        mark.type = "button"; mark.textContent = "Mark as Read";
+        mark.addEventListener("click", async () => {
+          mark.disabled = true; mark.textContent = "Updating...";
+          try { await api(`/expiry-notifications/${encodeURIComponent(n.notification_id)}/read`, { method: "PATCH" }); await loadNotifications(); }
+          catch (e) { sum.textContent = `Could not mark notification as read: ${e.message}`; mark.disabled = false; mark.textContent = "Retry Mark as Read"; }
+        });
+        card.appendChild(mark);
+      }
+      list.appendChild(card);
+    });
+  } catch (e) { sum.textContent = `Could not load notifications: ${e.message}`; list.textContent = "Check your API key, backend, and notification endpoint."; }
+  finally { btn.disabled = false; }
+}
+async function loadExpiryAlerts() {
+  const out = $("currentAlerts");
+  out.textContent = "Loading current expiry alerts...";
+  try { out.textContent = JSON.stringify(await api("/expiry-alerts"), null, 2); }
+  catch (e) { out.textContent = `Could not load current alerts: ${e.message}`; }
+}
+
+/* ---------- Transactions and donations ---------- */
+function fillTable(body, rows, cols, emptyText) {
+  body.replaceChildren();
+  if (!rows.length) { const c = body.insertRow().insertCell(); c.colSpan = cols; c.textContent = emptyText; return; }
+  rows.forEach(values => { const r = body.insertRow(); values.forEach(v => { r.insertCell().textContent = v ?? "—"; }); });
+}
+async function loadTransactions() {
+  const sum = $("transactionsSummary"), btn = $("loadTransactionsButton");
+  sum.textContent = "Loading transaction history..."; btn.disabled = true;
+  try {
+    const data = await api("/inventory-transactions");
+    const rows = Array.isArray(data.transactions) ? data.transactions : [];
+    sum.textContent = `Total transactions: ${data.total_transactions ?? rows.length}`;
+    fillTable($("transactionsTableBody"), rows.map(i => [i.transaction_id, i.inventory_id, i.transaction_type,
+      `${i.quantity_change ?? 0} ${i.unit ?? ""}`.trim(), `${i.previous_quantity ?? 0} ${i.unit ?? ""}`.trim(), `${i.new_quantity ?? 0} ${i.unit ?? ""}`.trim(), i.notes]), 7, "No transactions found.");
+  } catch (e) { sum.textContent = `Could not load transactions: ${e.message}`; }
+  finally { btn.disabled = false; }
+}
+async function loadDonations() {
+  const sum = $("donationsSummary"), btn = $("loadDonationsButton");
+  sum.textContent = "Loading donation history..."; btn.disabled = true;
+  try {
+    const data = await api("/donations");
+    const rows = Array.isArray(data.donations) ? data.donations : [];
+    sum.textContent = `Total donations: ${data.total_donations ?? rows.length}`;
+    fillTable($("donationsTableBody"), rows.map(i => [i.donation_id, i.product_name, i.ngo_name ?? `NGO ID ${i.ngo_id ?? "N/A"}`,
+      `${i.quantity ?? 0} ${i.unit ?? ""}`.trim(), i.status, i.created_at, i.pickup_notes]), 7, "No donations found.");
+  } catch (e) { sum.textContent = `Could not load donations: ${e.message}`; }
+  finally { btn.disabled = false; }
+}
+
+/* ---------- POS integration (prototype: no network calls, nothing stored) ---------- */
+const posStatus = $("posStatus");
+$("posSaveButton").addEventListener("click", () => {
+  const provider = $("posProvider").value, apiUrl = $("posApiUrl").value.trim();
+  if (!provider || !apiUrl) { posStatus.textContent = "Please select a POS provider and enter its API base URL."; return; }
+  try {
+    const u = new URL(apiUrl);
+    if (!["http:", "https:"].includes(u.protocol)) throw new Error("Only HTTP or HTTPS URLs are supported.");
+    if (u.protocol !== "https:" && !["localhost", "127.0.0.1"].includes(u.hostname)) throw new Error("Use HTTPS for a remote POS system.");
+  } catch (e) { posStatus.textContent = `Invalid API URL: ${e.message}`; return; }
+  $("posApiKey").value = "";
+  posStatus.textContent = "The fields look valid, but this is a prototype: nothing was saved, no credential was kept, and no POS system was contacted.";
+});
+$("posTestButton").addEventListener("click", () => { posStatus.textContent = "Connection not tested: no POS backend integration endpoint exists yet."; });
+$("posSyncButton").addEventListener("click", () => { posStatus.textContent = "Synchronisation not performed: a secure backend POS integration is required."; });
+
+/* ---------- AI Forecasting & Smart Reorder Demo ---------- */
+
+async function loadDemoForecast() {
+    const summary = $("demoForecastSummary");
+    const table = $("demoForecastTable");
+
+    const category = $("forecastCategory").value;
+    const horizon = $("forecastHorizon").value;
+
+    summary.textContent = "Generating AI forecast...";
+    table.innerHTML = "";
+
+    try {
+       const data = await api(
+    `/ai/demo/forecast?category=${encodeURIComponent(category)}&horizon=${encodeURIComponent(horizon)}`
+);
+        const forecast = data.forecast;
+        const daily = forecast.daily || [];
+
+        summary.textContent =
+            `DEMO DATA | Category: ${category} | ` +
+            `Model: ${forecast.model} | ` +
+            `Total predicted demand: ${Number(forecast.weekly_total).toFixed(2)} units`;
+
+        daily.forEach(day => {
+            const row = document.createElement("tr");
+
+            [
+                day.date,
+                Number(day.yhat).toFixed(2),
+                Number(day.yhat_lower).toFixed(2),
+                Number(day.yhat_upper).toFixed(2),
+                day.model
+            ].forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            table.appendChild(row);
+        });
+
+        if (daily.length === 0) {
+            table.innerHTML =
+                '<tr><td colspan="5">No forecast available.</td></tr>';
+        }
+
+    } catch (error) {
+        summary.textContent = "Forecast error: " + error.message;
+    }
+}
+
+async function loadDemoReorder() {
+    const summary = $("demoReorderSummary");
+    const table = $("demoReorderTable");
+
+    summary.textContent = "Generating reorder recommendations...";
+    table.innerHTML = "";
+
+    try {
+        const data = await api("/ai/demo/reorder");
+        const reorder = data.reorder;
+        const recommendations = reorder.recommendations || [];
+
+        const toOrder = recommendations.filter(
+            item => Number(item.recommended_qty) > 0
+        );
+
+        const totalQuantity = toOrder.reduce(
+            (sum, item) => sum + Number(item.recommended_qty), 0
+        );
+
+        summary.textContent =
+            `DEMO DATA | Products analysed: ${reorder.count} | ` +
+            `Products to reorder: ${toOrder.length} | ` +
+            `Total quantity: ${totalQuantity} | ` +
+            `Estimated cost: ${Number(reorder.total_estimated_cost).toFixed(2)} (demo units)`;
+
+        recommendations.forEach(item => {
+            const row = document.createElement("tr");
+
+            [
+                item.product_id,
+                item.recommended_qty,
+                item.order_by_date,
+                item.estimated_cost,
+                (item.reasons || []).join(", ") || "No restrictions"
+            ].forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            table.appendChild(row);
+        });
+
+        if (recommendations.length === 0) {
+            table.innerHTML =
+                '<tr><td colspan="5">No recommendations available.</td></tr>';
+        }
+
+    } catch (error) {
+        summary.textContent = "Reorder error: " + error.message;
+    }
+}
+
+</script>
+
+</body>
+</html>
