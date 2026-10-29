@@ -1,4 +1,11 @@
 
+import hashlib
+
+from fastapi import Header, HTTPException
+
+from database import get_connection
+
+
 def get_authenticated_business_id(
     x_api_key: str | None = Header(default=None, alias="X-API-Key")
 ) -> int:
