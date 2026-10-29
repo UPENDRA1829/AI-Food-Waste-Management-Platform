@@ -12,6 +12,7 @@ from routes.ngo import router as ngo_router
 from routes.matching import router as matching_router
 from routes.donations import router as donations_router
 from routes.pos import router as pos_router
+from routes.ai_prediction import router as ai_prediction_router
 from contextlib import asynccontextmanager
 from expiry_scheduler import (
     start_expiry_scheduler,
@@ -43,12 +44,13 @@ app.add_middleware(
     allow_origins=[
         "http://127.0.0.1:5500",
         "http://localhost:5500",
+        "http://127.0.0.1:5501",
+        "http://localhost:5501",
     ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # Create database tables
 create_tables()
@@ -63,6 +65,7 @@ app.include_router(ngo_router)
 app.include_router(matching_router)
 app.include_router(donations_router)
 app.include_router(pos_router)
+app.include_router(ai_prediction_router)
 
 
 # Add API-key authentication scheme to Swagger documentation
