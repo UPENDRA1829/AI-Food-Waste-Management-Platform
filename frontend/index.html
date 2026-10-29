@@ -62,21 +62,89 @@ footer{text-align:center;padding:25px;color:var(--muted)}
 @media(max-width:768px){.card{padding:16px}th,td{padding:10px}.generated-codes{grid-template-columns:1fr}}
 @media(max-width:600px){#pos-integration-section .key-actions{flex-direction:column}#pos-integration-section .key-actions button{width:100%}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition-duration:.01ms!important}}
+
+
+/* Milestone 3 visual layer: existing feature IDs and scripts retained */
+:root{--primary:#176b4d;--primary-h:#10533c;--accent:#21875e;--bg:#f5f8f5;--text:#20342b;--muted:#687a70;--border:#e3ece5;--green:#176b4d}
+body{font-family:Inter,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text)}
+.app-shell{display:grid;grid-template-columns:246px minmax(0,1fr);min-height:100vh}
+.app-sidebar{position:sticky;top:0;height:100vh;background:#103f30;color:#d5e9da;padding:28px 16px;display:flex;flex-direction:column;gap:22px;overflow-y:auto}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:0 12px 20px;color:white;font-weight:850;font-size:23px;letter-spacing:-.7px;text-decoration:none;border-bottom:1px solid #ffffff24}
+.sidebar-brand .brand-mark{display:grid;place-items:center;width:39px;height:39px;border-radius:12px;background:#ffffff1c;font-size:23px}
+.sidebar-label{font-size:10px;letter-spacing:1.8px;color:#9ac5ac;font-weight:800;padding:0 13px;margin:5px 0 0}
+.sidebar-nav{display:flex;flex-direction:column;gap:5px}
+.sidebar-nav a{display:flex;align-items:center;gap:12px;text-decoration:none;color:#d1e5d7;font-size:13px;font-weight:650;padding:12px 14px;border-radius:11px;transition:background .15s,color .15s}
+.sidebar-nav a:hover,.sidebar-nav a.active{background:#ffffff1a;color:white}
+.sidebar-nav a .nav-ico{font-size:17px;width:23px;text-align:center}
+.sidebar-bottom{margin-top:auto;border-top:1px solid #ffffff26;padding:17px 12px 0;font-size:12px;color:#a9cbb6;line-height:1.7}
+.sidebar-bottom a{color:white;text-decoration:none;font-weight:750}
+.app-content{min-width:0}
+.app-topbar{background:#fff;color:var(--text);padding:21px clamp(20px,3vw,48px);display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid var(--border)}
+.app-topbar h1{font-size:23px;letter-spacing:-.8px;margin:0}.app-topbar p{color:var(--muted);font-size:13px;margin:3px 0 0;opacity:1}
+.topbar-pill{background:#e8f5ed;color:#176b4d;border:1px solid #d0ead9;padding:9px 13px;border-radius:50px;font-size:12px;font-weight:800;white-space:nowrap}
+.app-content main{max-width:1440px;margin:0 auto;padding:28px clamp(16px,3vw,44px) 45px}
+.notice{border:1px solid #d5ead9;border-left:4px solid var(--green);background:linear-gradient(115deg,#e8f6ed,#f5fbf5);padding:18px 22px;border-radius:14px;margin-bottom:23px}
+.notice p{margin:5px 0 0;color:#526f5b;font-size:14px}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px}
+.metric-card{background:white;border:1px solid var(--border);border-radius:16px;padding:19px 21px;box-shadow:0 5px 18px #123c2410}
+.metric-label{font-size:12px;color:var(--muted);font-weight:750}.metric-value{display:block;font-size:29px;font-weight:850;line-height:1.5;letter-spacing:-1px}.metric-foot{font-size:11px;color:#81948a}
+.metric-card:nth-child(2) .metric-value{color:#be6a20}.metric-card:nth-child(3) .metric-value{color:#b83c40}.metric-card:nth-child(4) .metric-value{color:#176b4d}
+.card{border:1px solid var(--border);border-radius:17px;padding:25px;margin-bottom:21px;box-shadow:0 6px 20px #123c240b;scroll-margin-top:24px}
+.card>h2:first-child{color:#1d4d37;font-size:19px;letter-spacing:-.35px;border-bottom:1px solid #edf2ed;padding-bottom:15px}
+.dashboard{gap:18px}.dashboard>.card{height:100%}
+button{background:var(--primary);border-radius:10px;padding:11px 17px;font-size:13px;box-shadow:0 2px 4px #113b2510}
+button:hover{background:var(--primary-h)}button:focus-visible{outline-color:#88bda0}
+input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px #176b4d20}
+input,select{border-color:#d5e1d8;border-radius:10px;background:#fcfefd}
+.result{background:#f7faf8;border-color:#e5eee7;font-size:13px}
+.table-wrapper,.table-container{border-radius:12px}table{border-color:#e3ebe5;border-radius:12px}th{background:#f0f7f2;color:#325b43;font-size:12px;text-transform:uppercase;letter-spacing:.35px}td{font-size:13px}tbody tr:hover{background:#f6fbf7}
+#pos-integration-section{border-top:3px solid var(--green)}#pos-integration-section .hint{background:#eaf6ef;color:#246b48}
+.status-badge{border-radius:20px}.section-anchor{scroll-margin-top:20px}
+.mobile-menu{display:none;margin:0;background:#e8f5ed;color:#176b4d;padding:9px 12px}
+.app-footer{text-align:center;color:var(--muted);padding:15px 20px 30px;font-size:12px}
+@media(max-width:1150px){.app-shell{grid-template-columns:205px minmax(0,1fr)}.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.app-sidebar{padding:20px 10px}.sidebar-brand{font-size:19px}}
+@media(max-width:790px){.app-shell{display:block}.app-sidebar{display:none;position:fixed;z-index:50;width:260px;box-shadow:8px 0 35px #102e243b}.app-sidebar.is-open{display:flex}.mobile-menu{display:inline-flex}.app-topbar{padding:17px 18px}.app-topbar h1{font-size:19px}.app-content main{padding:19px 14px 35px}}
+@media(max-width:500px){.metrics-grid{grid-template-columns:1fr 1fr;gap:10px}.metric-card{padding:14px}.metric-value{font-size:24px}.metric-foot{font-size:10px}.topbar-pill{display:none}.card{padding:16px}}
+
 </style>
 </head>
 <body>
-<header><h1>🥬 FoodRescue</h1><p>Smart Food Inventory &amp; Surplus Redistribution</p></header>
-<main>
+<div class="app-shell">
+<aside class="app-sidebar" id="appSidebar" aria-label="Dashboard navigation">
+<a class="sidebar-brand" href="landing.html"><span class="brand-mark">🌱</span> FoodRescue<span style="color:#b9e78c">.</span></a>
+<div class="sidebar-label">WORKSPACE</div>
+<nav class="sidebar-nav">
+<a href="#overview" class="active"><span class="nav-ico">◫</span> Overview</a>
+<a href="#inventory-auth"><span class="nav-ico">🔐</span> Business Connection</a>
+<a href="#add-inventory-section"><span class="nav-ico">⊕</span> Add Inventory</a>
+<a href="#inventory-records-section"><span class="nav-ico">▤</span> Inventory Records</a>
+<a href="#ai-risk-section"><span class="nav-ico">✦</span> AI Waste Risk</a>
+<a href="#ai-forecast-section"><span class="nav-ico">▥</span> AI Forecasting</a>
+<a href="#notifications-section"><span class="nav-ico">♧</span> Notifications</a>
+<a href="#activity-section"><span class="nav-ico">⇄</span> Transactions & Donations</a>
+<a href="#pos-integration-section"><span class="nav-ico">⚙</span> POS Integration</a>
+</nav>
+<div class="sidebar-bottom">Restaurant / Business workspace<br><a href="landing.html">← Back to homepage</a></div>
+</aside>
+<div class="app-content">
+<header class="app-topbar"><button type="button" class="mobile-menu" id="mobileMenu" aria-label="Toggle navigation" aria-expanded="false">☰</button><div><h1>Restaurant Dashboard</h1><p>Inventory intelligence · Waste prevention · Food rescue</p></div><span class="topbar-pill">● FoodRescue Workspace</span></header>
+<main id="overview">
+<div class="metrics-grid" aria-label="Inventory overview">
+<div class="metric-card"><span class="metric-label">Total Inventory Items</span><strong class="metric-value" id="metricTotal">—</strong><span class="metric-foot">Loaded from your business inventory</span></div>
+<div class="metric-card"><span class="metric-label">Expiring Soon</span><strong class="metric-value" id="metricSoon">—</strong><span class="metric-foot">Today or within 2 days</span></div>
+<div class="metric-card"><span class="metric-label">Expired Items</span><strong class="metric-value" id="metricExpired">—</strong><span class="metric-foot">Review before redistribution</span></div>
+<div class="metric-card"><span class="metric-label">AI Critical Risk</span><strong class="metric-value" id="metricCritical">—</strong><span class="metric-foot">Preliminary AI risk classification</span></div>
+</div>
 <div class="notice"><strong>Welcome to FoodRescue!</strong><p>Manage food inventory, monitor expiry dates, and prepare surplus food for redistribution.</p></div>
 
-<section class="card">
+<section class="card" id="inventory-auth">
 <h2>🔐 Business API Authentication</h2><p class="muted">Your API key is stored for this browser tab's session. Clear it when you finish.</p>
 <label for="apiKey">Business API Key</label><input id="apiKey" type="password" autocomplete="off" placeholder="Enter your saved API key">
 <div class="key-actions"><button type="button" class="secondary" id="toggleKeyButton" onclick="toggleApiKeyVisibility()">Show key</button><button type="button" onclick="connectApi()">Connect</button><button type="button" class="secondary" onclick="clearApiKey()">Clear key</button></div>
 <div id="authMessage" class="result" aria-live="polite">Not connected. Enter your API key and select Connect.</div>
 </section>
 
-<section class="card">
+<section class="card" id="add-inventory-section">
 <h2>➕ Add Food Inventory</h2><p class="muted">Use a category that already exists in your database. Barcode and QR values are generated by your backend.</p>
 <form id="inventoryForm"><div class="form-grid">
 <div><label for="productName">Product Name</label><input id="productName" required maxlength="150" placeholder="Example: Milk"></div>
@@ -117,7 +185,168 @@ footer{text-align:center;padding:25px;color:var(--muted)}
 <div class="card"><h2>⏰ Expiry Check</h2><p>Check expiry information from the backend.</p><button type="button" id="expiryButton" onclick="checkExpiry()">Check Expiry</button><div id="expiryResult" class="result">Expiry results will appear here.</div></div>
 </section>
 
-<section class="card"><h2>📋 Inventory Records</h2><p class="muted">Red: expired · Orange: expires today or within 2 days · Green: fresh · Grey: unknown date.</p><div class="table-wrapper"><table><thead><tr><th>ID</th><th>Product</th><th>Category</th><th>Food Type</th><th>Quantity</th><th>Unit</th><th>Expiry Date</th><th>Expiry Status</th><th>Barcode</th><th>QR Code</th></tr></thead><tbody id="inventoryTable"><tr><td colspan="10">No data loaded yet.</td></tr></tbody></table></div></section>
+<section class="card" id="inventory-records-section"><h2>📋 Inventory Records</h2><p class="muted">Red: expired · Orange: expires today or within 2 days · Green: fresh · Grey: unknown date.</p><div class="table-wrapper"><table><thead><tr><th>ID</th><th>Product</th><th>Category</th><th>Food Type</th><th>Quantity</th><th>Unit</th><th>Expiry Date</th><th>Expiry Status</th><th>Barcode</th><th>QR Code</th></tr></thead><tbody id="inventoryTable"><tr><td colspan="10">No data loaded yet.</td></tr></tbody></table></div></section>
+<!-- ========================================== -->
+<!-- AI WASTE RISK PREDICTION SECTION            -->
+<!-- ========================================== -->
+
+<section class="card" id="ai-risk-section">
+
+    <h2>🤖 AI-Based Food Waste Risk Prediction</h2>
+
+    <p class="muted">
+        Analyse existing food inventory using expiry dates,
+        available stock and historical sales information.
+    </p>
+
+    <p class="hint">
+        Predictions are preliminary until sufficient
+        historical sales data is available.
+    </p>
+
+    <button
+        type="button"
+        id="aiRiskButton"
+        onclick="loadAiRisk()">
+        Analyse Waste Risk
+    </button>
+
+    <div
+        id="aiRiskSummary"
+        class="result"
+        aria-live="polite">
+        Select Analyse Waste Risk to load predictions.
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Inventory ID</th>
+                    <th>Product</th>
+                    <th>Risk Score</th>
+                    <th>Risk Level</th>
+                    <th>Recommended Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="aiRiskTable">
+                <tr>
+                    <td colspan="5">
+                        No waste-risk analysis loaded yet.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</section>
+
+<!-- AI DEMAND FORECASTING & SMART REORDER DEMO -->
+<section class="card" id="ai-forecast-section">
+
+    <h2>AI Demand Forecasting & Smart Reorder</h2>
+
+    <p class="muted">
+        Predict daily and weekly product demand using
+        trained Baseline, Prophet and LSTM models.
+    </p>
+
+    <p class="hint">
+        DEMONSTRATION ONLY: Forecasts and reorder
+        recommendations use synthetic sales data,
+        not actual FoodRescue business history.
+    </p>
+
+    <div class="form-grid">
+        <div>
+            <label for="forecastCategory">Food Category</label>
+            <select id="forecastCategory">
+                <option value="bakery">Bakery</option>
+                <option value="dairy">Dairy</option>
+                <option value="frozen">Frozen</option>
+                <option value="meat">Meat</option>
+                <option value="packaged">Packaged</option>
+                <option value="produce">Produce</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="forecastHorizon">Forecast Period</label>
+            <select id="forecastHorizon">
+                <option value="7">7 Days</option>
+                <option value="14">14 Days</option>
+                <option value="30">30 Days</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="key-actions">
+        <button type="button" onclick="loadDemoForecast()">
+            Generate AI Forecast
+        </button>
+
+        <button type="button" class="secondary"
+                onclick="loadDemoReorder()">
+            Generate Smart Reorder
+        </button>
+    </div>
+
+    <div id="demoForecastSummary"
+         class="result" aria-live="polite">
+        Select Generate AI Forecast to view predictions.
+    </div>
+
+    <h3>Daily Demand Forecast</h3>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Predicted Demand</th>
+                    <th>Lower Estimate</th>
+                    <th>Upper Estimate</th>
+                    <th>AI Model</th>
+                </tr>
+            </thead>
+            <tbody id="demoForecastTable">
+                <tr>
+                    <td colspan="5">No forecast loaded.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Smart Reorder Recommendations</h3>
+
+    <div id="demoReorderSummary"
+         class="result" aria-live="polite">
+        Select Generate Smart Reorder to view recommendations.
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Recommended Qty</th>
+                    <th>Order By</th>
+                    <th>Estimated Cost</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody id="demoReorderTable">
+                <tr>
+                    <td colspan="5">No recommendations loaded.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</section>
 
 <section class="card" id="notifications-section"><h2>🔔 Expiry Notifications</h2><p class="muted">View saved expiry alerts. Select Mark as Read when you have reviewed a notification.</p>
 <div class="key-actions"><button type="button" id="loadNotificationsButton" onclick="loadNotifications()">Refresh Notifications</button><button type="button" class="secondary" onclick="loadExpiryAlerts()">Check Current Alerts</button></div>
@@ -142,10 +371,11 @@ footer{text-align:center;padding:25px;color:var(--muted)}
 <div class="key-actions"><button type="button" id="loadTransactionsButton" onclick="loadTransactions()">Refresh Transactions</button><button type="button" id="loadDonationsButton" onclick="loadDonations()">Refresh Donations</button></div>
 <h3>Inventory Transaction History</h3><div id="transactionsSummary" class="result" aria-live="polite">Click Refresh Transactions to load stock history.</div><div class="table-container"><table><thead><tr><th>Transaction ID</th><th>Inventory ID</th><th>Type</th><th>Quantity Change</th><th>Previous</th><th>New</th><th>Notes</th></tr></thead><tbody id="transactionsTableBody"><tr><td colspan="7">No transaction data loaded yet.</td></tr></tbody></table></div>
 <h3>Donation History</h3><div id="donationsSummary" class="result" aria-live="polite">Click Refresh Donations to load donation history.</div><div class="table-container"><table><thead><tr><th>Donation ID</th><th>Product</th><th>NGO</th><th>Quantity</th><th>Status</th><th>Created At</th><th>Pickup Notes</th></tr></thead><tbody id="donationsTableBody"><tr><td colspan="7">No donation data loaded yet.</td></tr></tbody></table></div></section>
-</main><footer>FoodRescue · Food Waste Management Platform</footer>
+</main><footer class="app-footer">FoodRescue © 2026 · Smarter food, stronger communities</footer></div></div>
 
 <script>
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "http://127.0.0.1:8002";
+const AI_API_BASE = "http://127.0.0.1:8001";
 const KEY_NAME = "foodrescue_api_key";
 const $ = id => document.getElementById(id);
 let apiKey = "";
@@ -259,6 +489,87 @@ async function fetchInventory() {
   if (!Array.isArray(items)) throw new Error("Unexpected inventory response format.");
   return items;
 }
+
+/* ---------- AI Waste Risk Analysis ---------- */
+async function loadAiRisk() {
+  const button = $("aiRiskButton");
+  const summary = $("aiRiskSummary");
+  const table = $("aiRiskTable");
+
+  button.disabled = true;
+  button.textContent = "Analysing...";
+  summary.textContent = "Calculating waste-risk scores...";
+  table.replaceChildren();
+
+  try {
+    const data = await api("/ai/waste-risk");
+    const results = Array.isArray(data.results) ? data.results : [];
+
+    const critical = results.filter(
+      item => item.risk_level === "CRITICAL"
+    ).length;
+
+    const high = results.filter(
+      item => item.risk_level === "HIGH"
+    ).length;
+
+    summary.textContent =
+      `Analysed ${results.length} items. ` +
+      `Critical: ${critical} | High: ${high}. ` +
+      "Predictions are preliminary until sufficient sales history is available.";
+
+    if (results.length === 0) {
+      const row = table.insertRow();
+      const cell = row.insertCell();
+      cell.colSpan = 5;
+      cell.textContent = "No inventory items available for analysis.";
+      return;
+    }
+
+    for (const item of results) {
+      const row = table.insertRow();
+
+      const inventoryId = String(item.product_id || "")
+        .replace(/^inventory-/, "");
+
+      const action = String(item.action || "REVIEW")
+        .replaceAll("_", " ");
+
+      const values = [
+        inventoryId,
+        item.name || "Unknown",
+        item.risk_score ?? "N/A",
+        item.risk_level || "UNKNOWN",
+        action
+      ];
+
+      for (const value of values) {
+        const cell = row.insertCell();
+        cell.textContent = String(value);
+      }
+
+      if (item.risk_level === "CRITICAL") {
+        row.style.backgroundColor = "#fff0f0";
+      } else if (item.risk_level === "HIGH") {
+        row.style.backgroundColor = "#fff8e6";
+      }
+    }
+
+  } catch (error) {
+    summary.textContent =
+      "AI analysis failed: " + (error.message || "Unknown error");
+
+    const row = table.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 5;
+    cell.textContent = "Unable to load waste-risk predictions.";
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "Analyse Waste Risk";
+  }
+}
+
 async function loadInventory() {
   const m = $("inventoryMessage");
   m.textContent = "Loading inventory...";
@@ -541,6 +852,153 @@ $("posSaveButton").addEventListener("click", () => {
 });
 $("posTestButton").addEventListener("click", () => { posStatus.textContent = "Connection not tested: no POS backend integration endpoint exists yet."; });
 $("posSyncButton").addEventListener("click", () => { posStatus.textContent = "Synchronisation not performed: a secure backend POS integration is required."; });
+
+/* ---------- AI Forecasting & Smart Reorder Demo ---------- */
+
+async function loadDemoForecast() {
+    const summary = $("demoForecastSummary");
+    const table = $("demoForecastTable");
+
+    const category = $("forecastCategory").value;
+    const horizon = $("forecastHorizon").value;
+
+    summary.textContent = "Generating AI forecast...";
+    table.innerHTML = "";
+
+    try {
+       const data = await api(
+    `/ai/demo/forecast?category=${encodeURIComponent(category)}&horizon=${encodeURIComponent(horizon)}`
+);
+        const forecast = data.forecast;
+        const daily = forecast.daily || [];
+
+        summary.textContent =
+            `DEMO DATA | Category: ${category} | ` +
+            `Model: ${forecast.model} | ` +
+            `Total predicted demand: ${Number(forecast.weekly_total).toFixed(2)} units`;
+
+        daily.forEach(day => {
+            const row = document.createElement("tr");
+
+            [
+                day.date,
+                Number(day.yhat).toFixed(2),
+                Number(day.yhat_lower).toFixed(2),
+                Number(day.yhat_upper).toFixed(2),
+                day.model
+            ].forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            table.appendChild(row);
+        });
+
+        if (daily.length === 0) {
+            table.innerHTML =
+                '<tr><td colspan="5">No forecast available.</td></tr>';
+        }
+
+    } catch (error) {
+        summary.textContent = "Forecast error: " + error.message;
+    }
+}
+
+async function loadDemoReorder() {
+    const summary = $("demoReorderSummary");
+    const table = $("demoReorderTable");
+
+    summary.textContent = "Generating reorder recommendations...";
+    table.innerHTML = "";
+
+    try {
+        const data = await api("/ai/demo/reorder");
+        const reorder = data.reorder;
+        const recommendations = reorder.recommendations || [];
+
+        const toOrder = recommendations.filter(
+            item => Number(item.recommended_qty) > 0
+        );
+
+        const totalQuantity = toOrder.reduce(
+            (sum, item) => sum + Number(item.recommended_qty), 0
+        );
+
+        summary.textContent =
+            `DEMO DATA | Products analysed: ${reorder.count} | ` +
+            `Products to reorder: ${toOrder.length} | ` +
+            `Total quantity: ${totalQuantity} | ` +
+            `Estimated cost: ${Number(reorder.total_estimated_cost).toFixed(2)} (demo units)`;
+
+        recommendations.forEach(item => {
+            const row = document.createElement("tr");
+
+            [
+                item.product_id,
+                item.recommended_qty,
+                item.order_by_date,
+                item.estimated_cost,
+                (item.reasons || []).join(", ") || "No restrictions"
+            ].forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            table.appendChild(row);
+        });
+
+        if (recommendations.length === 0) {
+            table.innerHTML =
+                '<tr><td colspan="5">No recommendations available.</td></tr>';
+        }
+
+    } catch (error) {
+        summary.textContent = "Reorder error: " + error.message;
+    }
+}
+
+
+/* Milestone 3 enhancements: presentation only, original API functions retained */
+(function () {
+  const menu = document.getElementById('mobileMenu');
+  const sidebar = document.getElementById('appSidebar');
+  menu?.addEventListener('click', () => {
+    const open = sidebar.classList.toggle('is-open');
+    menu.setAttribute('aria-expanded', String(open));
+  });
+  document.querySelectorAll('.sidebar-nav a').forEach(link => link.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+    link.classList.add('active');
+    sidebar.classList.remove('is-open');
+    menu?.setAttribute('aria-expanded', 'false');
+  }));
+  const setMetric = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = String(value); };
+  const previousRender = renderInventory;
+  renderInventory = function(items) {
+    previousRender(items);
+    setMetric('metricTotal', items.length);
+    setMetric('metricSoon', items.filter(it => getExpiryStatus(it.expiry_date).className === 'status-soon').length);
+    setMetric('metricExpired', items.filter(it => getExpiryStatus(it.expiry_date).className === 'status-expired').length);
+  };
+  const previousRisk = loadAiRisk;
+  loadAiRisk = async function() {
+    await previousRisk();
+    const rows = [...document.querySelectorAll('#aiRiskTable tr')];
+    if (document.getElementById('aiRiskSummary').textContent.startsWith('Analysed ')) {
+      setMetric('metricCritical', rows.filter(row => row.cells[3]?.textContent.trim() === 'CRITICAL').length);
+    }
+  };
+  // A key saved by login.html is loaded into memory above, but the input field
+  // must also be populated before the existing Connect button is pressed.
+  if (apiKey) {
+    document.getElementById('apiKey').value = apiKey;
+    setAuthMessage('A key from this browser tab is ready. Select Connect to verify it.');
+  }
+})();
+
 </script>
+
 </body>
 </html>
